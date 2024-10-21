@@ -6,17 +6,17 @@
 - [go-gorm-optimisticlock](https://github.com/go-gorm/optimisticlock)
 
 
-## Sample codes
+## Example codes
 
-- `gormPlugin` is the sample code that use go-gorm-optimisticlock to implement optimistic lock.
+- `gormPlugin` is the example code that use go-gorm-optimisticlock to implement optimistic lock.
 
-- `pureGormUpdatedAt` is the sample code that use go-gorm and field `UpdatedAt` to implement optimistic lock.
+- `pureGormUpdatedAt` is the example code that use go-gorm and field `UpdatedAt` to implement optimistic lock.
 
-- `pureGormVersion` is the sample code that use go-gorm and field `Version` to implement optimistic lock.
+- `pureGormVersion` is the example code that use go-gorm and field `Version` to implement optimistic lock.
 
-## How to run 
+## How to run examples
 
-1. create a `.env` file in the sample code directory, and set the database connection string.
+1. create a `.env` file in the example code directory, and set the database connection string.
 
    ```toml
     # .env
@@ -26,4 +26,4 @@
     POSTGRES_USER="{your_postgres_user}"
     POSTGRES_PASSWORD="{your_postgres_password}"
    ```
-2. run the sample code. And you will got the same result that the book's count is 20.
+2. run the example code. And you will got the same result that the book's count is 20.

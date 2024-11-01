@@ -13,6 +13,7 @@
 - `pureGormUpdatedAt` is the example code that use go-gorm and field `UpdatedAt` to implement optimistic lock.
 
 - `pureGormVersion` is the example code that use go-gorm and field `Version` to implement optimistic lock.
+- `pureGormTransaction` is the example code that use go-gorm and transaction to implement AddBookCount method.
 
 ## How to run examples
 

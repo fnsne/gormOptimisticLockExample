@@ -58,19 +58,15 @@ func main() {
 	for i := 0; i < 20; i++ {
 		wg.Add(1)
 		go func() {
-			increaseCount(bookRepo, ctx, b)
+			err2 := bookRepo.AddBookCount(ctx, b.ID, 1)
+			if err2 != nil {
+				slog.Error("cannot update book")
+				panic(err2)
+			}
 			wg.Done()
 		}()
 	}
 	wg.Wait()
-}
-
-func increaseCount(bookRepo *BookRepo, ctx context.Context, b *Book) {
-	err := bookRepo.AddBookCount(ctx, b.ID, 1)
-	if err != nil {
-		slog.Error("cannot update book")
-		panic(err)
-	}
 }
 
 type Book struct {

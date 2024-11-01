@@ -94,16 +94,6 @@ func (r *BookRepo) Get(ctx context.Context, id string) (Book, error) {
 	return b, err
 }
 
-var ErrNoUpdated = fmt.Errorf("no row updated caused there is another transaction update before this transaction")
-
-func (r *BookRepo) Update(ctx context.Context, book Book) error {
-	tx := r.gormDB.WithContext(ctx).Where("updated_at = ?", book.UpdatedAt).Updates(&book)
-	if tx.RowsAffected != 1 {
-		return ErrNoUpdated
-	}
-	return tx.Error
-}
-
 func (r *BookRepo) UpdateBookCount(ctx context.Context, id string, count int) error {
 	for {
 		var b Book

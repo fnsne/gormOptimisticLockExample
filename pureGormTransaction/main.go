@@ -65,13 +65,7 @@ func main() {
 }
 
 func increaseCount(bookRepo *BookRepo, ctx context.Context, b *Book) {
-	currentB, err := bookRepo.Get(ctx, b.ID)
-	if err != nil {
-		slog.Error("cannot get book")
-		panic(err)
-	}
-	currentB.Count = currentB.Count + 1
-	err = bookRepo.AddBookCount(ctx, currentB.ID, 1)
+	err := bookRepo.AddBookCount(ctx, b.ID, 1)
 	if err != nil {
 		slog.Error("cannot update book")
 		panic(err)

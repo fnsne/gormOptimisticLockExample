@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
@@ -57,33 +56,15 @@ func main() {
 	for i := 0; i < 20; i++ {
 		wg.Add(1)
 		go func() {
-			increaseCount(bookRepo, ctx, b)
+			err2 := bookRepo.UpdateBookCount(ctx, b.ID, 1)
+			if err2 != nil {
+				slog.Error("cannot update book")
+				panic(err2)
+			}
 			wg.Done()
 		}()
 	}
 	wg.Wait()
-}
-
-func increaseCount(bookRepo *BookRepo, ctx context.Context, b *Book) {
-	for {
-		currentB, err := bookRepo.Get(ctx, b.ID)
-		if err != nil {
-			slog.Error("cannot get book")
-			panic(err)
-		}
-		currentB.Count = currentB.Count + 1
-		err = bookRepo.Update(ctx, currentB)
-		if err != nil {
-			if errors.Is(err, ErrNoUpdated) {
-				continue
-			}
-			if err != nil {
-				slog.Error("cannot update book")
-				panic(err)
-			}
-		}
-		break
-	}
 }
 
 type Book struct {
@@ -109,16 +90,26 @@ func (r *BookRepo) Get(ctx context.Context, id string) (Book, error) {
 	return b, err
 }
 
-var ErrNoUpdated = fmt.Errorf("no row updated caused there is another transaction update before this transaction")
+func (r *BookRepo) UpdateBookCount(ctx context.Context, id string, count int) error {
+	for {
+		var b Book
+		err := r.gormDB.WithContext(ctx).First(&b, "id = ?", id).Error
+		if err != nil {
+			return err
+		}
+		currentVersion := b.Version
 
-func (r *BookRepo) Update(ctx context.Context, book Book) error {
-	currentVersion := book.Version
-	book.Version += 1
-	tx := r.gormDB.WithContext(ctx).Where("version = ?", currentVersion).Updates(&book)
-	if tx.RowsAffected != 1 {
-		return ErrNoUpdated
+		b.Count += count
+		b.Version += 1
+		tx := r.gormDB.WithContext(ctx).Where("version = ?", currentVersion).Updates(&b)
+		if tx.Error != nil {
+			return tx.Error
+		}
+		if tx.RowsAffected == 1 {
+			break
+		}
 	}
-	return tx.Error
+	return nil
 }
 
 func NewBookRepo(gormDB *gorm.DB) *BookRepo {

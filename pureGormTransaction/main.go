@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
@@ -66,24 +65,16 @@ func main() {
 }
 
 func increaseCount(bookRepo *BookRepo, ctx context.Context, b *Book) {
-	for {
-		currentB, err := bookRepo.Get(ctx, b.ID)
-		if err != nil {
-			slog.Error("cannot get book")
-			panic(err)
-		}
-		currentB.Count = currentB.Count + 1
-		err = bookRepo.AddBookCount(ctx, currentB.ID, 1)
-		if err != nil {
-			if errors.Is(err, ErrNoUpdated) {
-				continue
-			}
-			if err != nil {
-				slog.Error("cannot update book")
-				panic(err)
-			}
-		}
-		break
+	currentB, err := bookRepo.Get(ctx, b.ID)
+	if err != nil {
+		slog.Error("cannot get book")
+		panic(err)
+	}
+	currentB.Count = currentB.Count + 1
+	err = bookRepo.AddBookCount(ctx, currentB.ID, 1)
+	if err != nil {
+		slog.Error("cannot update book")
+		panic(err)
 	}
 }
 
@@ -109,8 +100,6 @@ func (r *BookRepo) Get(ctx context.Context, id string) (Book, error) {
 	err := r.gormDB.WithContext(ctx).First(&b, "id = ?", id).Error
 	return b, err
 }
-
-var ErrNoUpdated = fmt.Errorf("no row updated caused there is another transaction update before this transaction")
 
 func (r *BookRepo) AddBookCount(ctx context.Context, bookID string, count int) error {
 	tx := r.gormDB.WithContext(ctx).Begin()
